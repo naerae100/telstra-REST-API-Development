@@ -1,5 +1,7 @@
 package au.com.telstra.simcardactivator;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -9,6 +11,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 public class SimCardActivationController {
+    
+    private static final Logger logger = LoggerFactory.getLogger(SimCardActivationController.class);
     
     private final ActuatorService actuatorService;
     private final SimCardActivationRepository repository;
@@ -34,15 +38,14 @@ public class SimCardActivationController {
             repository.save(activation);
             
             if (success) {
-                System.out.println("SIM card activation successful for ICCID: " + request.getIccid());
+                logger.info("SIM card activation successful for ICCID: {}", request.getIccid());
                 return ResponseEntity.ok("SIM card activated successfully");
             } else {
-                System.out.println("SIM card activation failed for ICCID: " + request.getIccid());
+                logger.warn("SIM card activation failed for ICCID: {}", request.getIccid());
                 return ResponseEntity.ok("SIM card activation failed");
             }
         } catch (Exception e) {
-            System.err.println("Error activating SIM card: " + e.getMessage());
-            e.printStackTrace();
+            logger.error("Error activating SIM card: {}", e.getMessage(), e);
             return ResponseEntity.status(500).body("Error activating SIM card: " + e.getMessage());
         }
     }
